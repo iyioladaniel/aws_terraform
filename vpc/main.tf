@@ -4,6 +4,8 @@ resource "aws_vpc" "practice_vpc" {
 
     tags = {
         Name = "practice_vpc"
+        owner= "Data Platform Team"
+        environment = "vpc_stacks_practice"
     }
 }
 
@@ -15,6 +17,8 @@ resource "aws_subnet" "private_subnet" {
     tags = {
         Name = "private_subnet"
         Type = "Private"
+        owner= "Data Platform Team"
+        environment = "vpc_stacks_practice"
     }
 }
 
@@ -25,6 +29,8 @@ resource "aws_subnet" "public_subnet" {
     tags = {
       Name = "public_subnet" 
       Type = "Public"
+      owner= "Data Platform Team"
+      environment = "vpc_stacks_practice"
     }
 }
 
@@ -43,6 +49,8 @@ resource "aws_eip" "eip_nat_gateway" {
 
   tags = {
     Name = "nat_gateway_elastic_ip"
+    owner= "Data Platform Team"
+    environment = "vpc_stacks_practice"
   }
 }
 
@@ -57,6 +65,8 @@ resource "aws_nat_gateway" "nat_gateway" {
 
   tags = {
     Name = "nat_gateway"
+    owner= "Data Platform Team"
+    environment = "vpc_stacks_practice"
   }
 }
 
@@ -72,6 +82,8 @@ resource "aws_route_table" "public_route_table" {
   tags = {
     Name = "public_route_table"
     Type = "Public"
+    owner= "Data Platform Team"
+    environment = "vpc_stacks_practice"
   }
 }
 
@@ -87,6 +99,8 @@ resource "aws_route_table" "private_route_table" {
   tags = {
     name = "private-route-table"
     Type = "Private"
+    owner= "Data Platform Team"
+    environment = "vpc_stacks_practice"
   }
 }
 
