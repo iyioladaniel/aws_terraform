@@ -13,8 +13,8 @@ resource "aws_subnet" "private_subnet" {
     cidr_block =  "10.0.0.0/24"
 
     tags = {
-        Name = "private_subnet",
-        vpc = "practice_vpc"
+        Name = "private_subnet"
+        Type = "Private"
     }
 }
 
@@ -24,7 +24,7 @@ resource "aws_subnet" "public_subnet" {
 
     tags = {
       Name = "public_subnet" 
-      vpc = "practice_vpc"
+      Type = "Public"
     }
 }
 
@@ -33,18 +33,16 @@ resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.practice_vpc.id
 
   tags = {
-    Name = "internet_gateway",
-    vpc = "practice_vpc"
+    Name = "internet_gateway"
   }
 }
 
-#Create Elastic IP for NAT Gateway
+# Create Elastic IP for NAT Gateway
 resource "aws_eip" "eip_nat_gateway" {
-  domain = "vpc"
-  depends_on = [aws_internet_gateway.internet_gateway]
+  domain = vpc
+
   tags = {
     Name = "nat_gateway_elastic_ip"
-    vpc = "practice_vpc"
   }
 }
 
@@ -58,9 +56,7 @@ resource "aws_nat_gateway" "nat_gateway" {
   depends_on = [aws_internet_gateway.internet_gateway]
 
   tags = {
-    Name = "nat_gateway",
-    subnet = "public_subnet",
-    vpc = "practice_vpc"
+    Name = "nat_gateway"
   }
 }
 
@@ -75,9 +71,7 @@ resource "aws_route_table" "public_route_table" {
 
   tags = {
     Name = "public_route_table"
-    subnet = "public_subnet"
-    gateway = "nat_gateway"
-    subnet = "private_subnet"
+    Type = "Public"
   }
 }
 
@@ -92,9 +86,7 @@ resource "aws_route_table" "private_route_table" {
 
   tags = {
     name = "private-route-table"
-    vpc = "private_vpc"
-    gateway = "nat_gateway"
-    subnet = "private_subnet"
+    Type = "Private"
   }
 }
 
