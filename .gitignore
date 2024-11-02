@@ -1,5 +1,11 @@
 .env
 
+# SSH Keys
+*.pub
+*_key
+*.pem
+*.ppk
+
 # Local .terraform directories
 **/.terraform/*
 
