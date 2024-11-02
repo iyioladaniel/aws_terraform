@@ -19,8 +19,8 @@ controlling your egress rules. If you desire this rule to be in
 place, you can use this egress block:
 */
   tags = {
-    Name = "public_ec2_security_group"
-    vpc = "practice_vpc"
+    environment = "production"
+    owner = "data platform team"
   }
   /*
   You can use ingress here to specify the traffic, but best 
