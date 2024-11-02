@@ -9,24 +9,11 @@ resource "aws_security_group" "public_ec2_sg" {
   description = "Allows TLS inbound traffic and outbound traffic"
   vpc_id = module.vpc_module.aws_vpc.practice_vpc.id
 
-/*
-By default, AWS creates an ALLOW ALL egress rule when creating 
-a new Security Group inside of a VPC. When creating a new 
-Security Group inside a VPC, Terraform will remove this default 
-rule, and require you specifically re-create it if you desire 
-that rule. We feel this leads to fewer surprises in terms of 
-controlling your egress rules. If you desire this rule to be in 
-place, you can use this egress block:
-*/
   tags = {
     environment = "production"
     owner = "data platform team"
   }
-  /*
-  You can use ingress here to specify the traffic, but best 
-  practice from terrafom docs says best practice is to use the 
-  aws_vpc_security_group_ingress_rule
-  */
+  
 }
 
 resource "aws_vpc_security_group_ingress_rule" "public_allow_all_ipv4_inbound_traffic" {
@@ -102,7 +89,6 @@ resource "aws_vpc_security_group_egress_rule" "private_allow_all_outbound_ipv4_s
 
 #Create ec2 instance in private subnet
 resource "aws_instance" "private_instance" {
-    #You can search for amis on aws cli using aws ec2 describe-images --owner amazon --filter "Name=**,Value=**"
   ami = "ami-08ec94f928cf25a9d" # Amazon Linux 2023 AMI.
   instance_type = "t2.micro"
   subnet_id = module.vpc_module.aws_subnet.private_subnet.id
