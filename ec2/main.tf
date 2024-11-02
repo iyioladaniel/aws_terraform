@@ -1,8 +1,13 @@
+#Import vpc module
+module vpc_module {
+  source = "../vpc"
+}
+
 #Create Security Groups for public instances
 resource "aws_security_group" "public_ec2_sg" {
   name = "public_ec2_sg"
   description = "Allows TLS inbound traffic and outbound traffic"
-  vpc_id = aws_vpc.practice_vpc.id
+  vpc_id = module.vpc_module.aws_vpc.practice_vpc.id
 
 /*
 By default, AWS creates an ALLOW ALL egress rule when creating 
@@ -13,15 +18,6 @@ that rule. We feel this leads to fewer surprises in terms of
 controlling your egress rules. If you desire this rule to be in 
 place, you can use this egress block:
 */
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
   tags = {
     Name = "public_ec2_security_group"
     vpc = "practice_vpc"
@@ -33,28 +29,20 @@ place, you can use this egress block:
   */
 }
 
-#rule to allow all traffic
-resource "aws_vpc_security_group_ingress_rule" "allow_all_inbound_traffic" {
+resource "aws_vpc_security_group_ingress_rule" "public_allow_all_ipv4_inbound_traffic" {
   security_group_id = aws_security_group.public_ec2_sg.id
-  cidr_ipv4 = "0.0.0.0/0"
-  ip_protocol = "-1"
-}
-
-#rule to allow all inbound ssh
-resource "aws_vpc_security_group_ingress_rule" "public_allow_ssh" {
-  security_group_id = aws_security_group.public_ec2_sg.id
-  description = "allow ssh from anywhere on the internet"
-  cidr_ipv4 = "0.0.0.0/0"
-  ip_protocol = "tcp" #all protocol is "-1"
-
+  description = "allow all inbound ssh traffic from anywhere on the internet"
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "tcp"
   #Port 22 is used to establish an SSH connection to an EC2 instance and access a shell
-  from_port = 22
-  to_port = 22
+  from_port         = 22 
+  to_port           = 22
 }
 
 #rule to allow all outbound traffic
-resource "aws_vpc_security_group_egress_rule" "allow_all_outbound_traffic" {
+resource "aws_vpc_security_group_egress_rule" "public_allow_all_ipv4_outbound_traffic" {
   security_group_id = aws_security_group.public_ec2_sg.id
+  description = "allow all outbound ssh traffic to anywhere on the internet"
   cidr_ipv4 = "0.0.0.0/0"
   ip_protocol = "-1"
 }
@@ -69,8 +57,8 @@ resource "aws_key_pair" "public_ec2_key_pair" {
 resource "aws_instance" "public_instance" {
   ami = "ami-08ec94f928cf25a9d"
   instance_type = "t2.micro"
-  subnet_id = aws_subnet.public_subnet.id
-  security_groups = aws_security_group.public_ec2_security_group.id
+  subnet_id = module.aws_subnet.public_subnet.id
+  security_groups = [aws_security_group.public_ec2_sg.id]
   associate_public_ip_address = true
   
   tags = {
@@ -84,15 +72,7 @@ resource "aws_instance" "public_instance" {
 resource "aws_security_group" "private_ec2_sg" {
   name = "private_ec2_sg"
   description = "Allows TLS inbound traffic and outbound traffic from public subnet"
-  vpc_id = aws_vpc.practice_vpc.id
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
+  vpc_id = module.vpc_module.aws_vpc.practice_vpc.id
 
   tags = {
     Name = "private_ec2_security_group"
@@ -101,10 +81,10 @@ resource "aws_security_group" "private_ec2_sg" {
 }
 
 #rule to allow inbound ssh from public subnet only
-resource "aws_vpc_security_group_ingress_rule" "private_allow_ssh" {
+resource "aws_vpc_security_group_ingress_rule" "private_allow_inbound_ipv4_ssh_traffic" {
   security_group_id = aws_security_group.private_ec2_sg.id
   description = "allow ssh from ips within the CIDR of the public subnet"
-  cidr_ipv4 = aws_subnet.public_subnet.cidr_block
+  cidr_ipv4 = module.vpc_module.aws_subnet.public_subnet.cidr_block
   ip_protocol = "tcp" 
   from_port = 22
   to_port = 22
@@ -114,7 +94,7 @@ resource "aws_vpc_security_group_ingress_rule" "private_allow_ssh" {
 }
 
 #rule to allow all outbound traffic
-resource "aws_vpc_security_group_egress_rule" "allow_all_outbound_traffic" {
+resource "aws_vpc_security_group_egress_rule" "private_allow_all_outbound_ipv4_ssh_traffic" {
   security_group_id = aws_security_group.private_ec2_sg.id
   cidr_ipv4 = "0.0.0.0/0"
   ip_protocol = "-1"
@@ -125,8 +105,8 @@ resource "aws_instance" "private_instance" {
     #You can search for amis on aws cli using aws ec2 describe-images --owner amazon --filter "Name=**,Value=**"
   ami = "ami-08ec94f928cf25a9d" # Amazon Linux 2023 AMI.
   instance_type = "t2.micro"
-  subnet_id = aws_subnet.private_subnet.id
-  security_groups = aws_security_group.private_ec2_security_group.id
+  subnet_id = module.vpc_module.aws_subnet.private_subnet.id
+  security_groups = [aws_security_group.private_ec2_sg.id]
 
   tags = {
     Name = "private_instance"
