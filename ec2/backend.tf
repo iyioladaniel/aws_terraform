@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket         = "remote-state-bucket"
+    bucket         = "remote-state-bucket-vpc-stack"
     key            = "state-files/terraform.tfstate"
     region         = "eu-north-1"
     encrypt        = true
