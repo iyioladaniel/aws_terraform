@@ -1,19 +1,19 @@
 #Import vpc module
 module vpc_module {
-  source = "../vpc"
+  source = "../vpc/"
 }
 
 #Create Security Groups for public instances
 resource "aws_security_group" "public_ec2_sg" {
   name = "public_ec2_sg"
   description = "Allows TLS inbound traffic and outbound traffic"
-  vpc_id = module.vpc_module.aws_vpc.practice_vpc.id
+  vpc_id = module.vpc_module.practice_vpc_id
 
   tags = {
+    Name = "public_ec2_security_group"
+    owner = "Data Platform Team"
     environment = "production"
-    owner = "data platform team"
   }
-  
 }
 
 resource "aws_vpc_security_group_ingress_rule" "public_allow_all_ipv4_inbound_traffic" {
@@ -29,7 +29,6 @@ resource "aws_vpc_security_group_ingress_rule" "public_allow_all_ipv4_inbound_tr
 #rule to allow all outbound traffic
 resource "aws_vpc_security_group_egress_rule" "public_allow_all_ipv4_outbound_traffic" {
   security_group_id = aws_security_group.public_ec2_sg.id
-  description = "allow all outbound ssh traffic to anywhere on the internet"
   cidr_ipv4 = "0.0.0.0/0"
   ip_protocol = "-1"
 }
@@ -37,21 +36,21 @@ resource "aws_vpc_security_group_egress_rule" "public_allow_all_ipv4_outbound_tr
 #Create key pair for SSH access
 resource "aws_key_pair" "public_ec2_key_pair" {
   key_name = "dpe_practice_key_pair"
-  public_key = file("${path.root}/dep_practice_key.pub")
+  public_key = file("${path.module}/dpe_practice_key.pub")
 }
 
 #Create ec2 instance in public subnet
 resource "aws_instance" "public_instance" {
   ami = "ami-08ec94f928cf25a9d"
   instance_type = "t2.micro"
-  subnet_id = module.aws_subnet.public_subnet.id
+  subnet_id = module.vpc_module.public_subnet_id
   security_groups = [aws_security_group.public_ec2_sg.id]
   associate_public_ip_address = true
   
   tags = {
     Name = "public_instance"
+    owner= "Data Platform Team"
     subnet = "public_subnet"
-    vpc = "practice_vpc"
   }
 }
 
@@ -59,11 +58,11 @@ resource "aws_instance" "public_instance" {
 resource "aws_security_group" "private_ec2_sg" {
   name = "private_ec2_sg"
   description = "Allows TLS inbound traffic and outbound traffic from public subnet"
-  vpc_id = module.vpc_module.aws_vpc.practice_vpc.id
+  vpc_id = module.vpc_module.practice_vpc_id
 
   tags = {
     Name = "private_ec2_security_group"
-    vpc = "practice_vpc"
+    environment = "vpc_stacks_practice"
   }
 }
 
@@ -71,7 +70,7 @@ resource "aws_security_group" "private_ec2_sg" {
 resource "aws_vpc_security_group_ingress_rule" "private_allow_inbound_ipv4_ssh_traffic" {
   security_group_id = aws_security_group.private_ec2_sg.id
   description = "allow ssh from ips within the CIDR of the public subnet"
-  cidr_ipv4 = module.vpc_module.aws_subnet.public_subnet.cidr_block
+  cidr_ipv4 = module.vpc_module.public_subnet_cidr_block
   ip_protocol = "tcp" 
   from_port = 22
   to_port = 22
@@ -87,16 +86,19 @@ resource "aws_vpc_security_group_egress_rule" "private_allow_all_outbound_ipv4_s
   ip_protocol = "-1"
 }
 
-#Create ec2 instance in private subnet
+# Create ec2 instance in private subnet
+# You can search for amis on aws cli using aws ec2 describe-images --owner amazon --filter "Name=**,Value=**"
+ # The ami_id for Amazon Linux 2023 AMI (free tier) is ami-08ec94f928cf25a9d
 resource "aws_instance" "private_instance" {
-  ami = "ami-08ec94f928cf25a9d" # Amazon Linux 2023 AMI.
+  ami = "ami-08ec94f928cf25a9d"
   instance_type = "t2.micro"
-  subnet_id = module.vpc_module.aws_subnet.private_subnet.id
+  subnet_id = module.vpc_module.private_subnet_id
   security_groups = [aws_security_group.private_ec2_sg.id]
 
   tags = {
     Name = "private_instance"
+    owner= "Data Platform Team"
     subnet = "private_subnet"
-    vpc = "practice_vpc"
+    environment = "vpc_stacks_practice"
   }
 }
