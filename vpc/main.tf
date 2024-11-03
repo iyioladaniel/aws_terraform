@@ -45,7 +45,7 @@ resource "aws_internet_gateway" "internet_gateway" {
 
 # Create Elastic IP for NAT Gateway
 resource "aws_eip" "eip_nat_gateway" {
-  domain = vpc
+  domain = aws_vpc.practice_vpc.id
 
   tags = {
     Name = "nat_gateway_elastic_ip"
