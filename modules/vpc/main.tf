@@ -1,36 +1,34 @@
 #Create vpc
 resource "aws_vpc" "practice_vpc" {
-    cidr_block = "10.0.0.0/16"
+    cidr_block = "${var.vpc_cidr}"
 
     tags = {
-        Name = "practice_vpc"
-        owner= "Data Platform Team"
-        environment = "vpc_stacks_practice"
+        Name = "${var.vpc_name}"
+        owner= "${var.vpc_stack_owner}"
+        environment = "${var.vpc_stack_resource_environment}"
     }
 }
 
 #Create subnets
 resource "aws_subnet" "private_subnet" {
     vpc_id = aws_vpc.practice_vpc.id
-    cidr_block =  "10.0.0.0/24"
+    cidr_block =  "${var.private_subnet_cidr}"
 
     tags = {
-        Name = "private_subnet"
-        Type = "Private"
-        owner= "Data Platform Team"
-        environment = "vpc_stacks_practice"
+        Name = "${var.private_subnet_name}"
+        owner= "${var.vpc_stack_owner}"
+        environment = "${var.vpc_stack_resource_environment}"
     }
 }
 
 resource "aws_subnet" "public_subnet" {
     vpc_id = aws_vpc.practice_vpc.id
-    cidr_block =  "10.0.1.0/24"
+    cidr_block =  "${var.public_subnet_cidr}"
 
     tags = {
-      Name = "public_subnet" 
-      Type = "Public"
-      owner= "Data Platform Team"
-      environment = "vpc_stacks_practice"
+      Name = "${var.public_subnet_name}" 
+      owner= "${var.vpc_stack_owner}"
+      environment = "${var.vpc_stack_resource_environment}"
     }
 }
 
@@ -39,7 +37,9 @@ resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.practice_vpc.id
 
   tags = {
-    Name = "internet_gateway"
+    Name = "${var.internet_gateway_name}"
+    owner = "${var.vpc_stack_owner}"
+    environment = "${var.vpc_stack_resource_environment}"
   }
 }
 
@@ -48,9 +48,9 @@ resource "aws_eip" "eip_nat_gateway" {
   domain = aws_vpc.practice_vpc.id
 
   tags = {
-    Name = "nat_gateway_elastic_ip"
-    owner= "Data Platform Team"
-    environment = "vpc_stacks_practice"
+    Name = "${var.elastic_ip_name}"
+    owner= "${var.vpc_stack_owner}"
+    environment = "${var.vpc_stack_resource_environment}"
   }
 }
 
@@ -64,9 +64,9 @@ resource "aws_nat_gateway" "nat_gateway" {
   depends_on = [aws_internet_gateway.internet_gateway]
 
   tags = {
-    Name = "nat_gateway"
-    owner= "Data Platform Team"
-    environment = "vpc_stacks_practice"
+    Name = "${var.nat_gateway_name}"
+    owner= "${var.vpc_stack_owner}"
+    environment = "${var.vpc_stack_resource_environment}"
   }
 }
 
@@ -75,15 +75,14 @@ resource "aws_route_table" "public_route_table" {
   vpc_id = aws_vpc.practice_vpc.id
 
   route {
-    cidr_block = "0.0.0.0/0" 
+    cidr_block = "${var.public_route_table_destination}" 
     gateway_id = aws_internet_gateway.internet_gateway.id
   }
 
   tags = {
-    Name = "public_route_table"
-    Type = "Public"
-    owner= "Data Platform Team"
-    environment = "vpc_stacks_practice"
+    Name = "${var.public_route_table_name}"
+    owner= "${var.vpc_stack_owner}"
+    environment = "${var.vpc_stack_resource_environment}"
   }
 }
 
@@ -92,15 +91,14 @@ resource "aws_route_table" "private_route_table" {
   vpc_id = aws_vpc.practice_vpc.id
 
   route {
-    cidr_block = "0.0.0.0/0" 
+    cidr_block = "${var.private_route_table_destination}" 
     gateway_id = aws_nat_gateway.nat_gateway.id 
   }
 
   tags = {
-    name = "private-route-table"
-    Type = "Private"
-    owner= "Data Platform Team"
-    environment = "vpc_stacks_practice"
+    name = "${var.private_route_table_name}"
+    owner= "${var.vpc_stack_owner}"
+    environment = "${var.vpc_stack_resource_environment}"
   }
 }
 
