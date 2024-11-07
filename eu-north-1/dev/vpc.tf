@@ -1,20 +1,104 @@
-module "vpc"{
-    source = "path to vpc module"
-    vpc_cidr = "10.0.0.0/16"
-    vpc_name = "..."
-    vpc_stack_owner = "data platform team"
-    vpc_stack_resource_environment = "dev"
-    private_subnet_cidr = "10.0.0.0/24"
-    private_subnet_name = "private subnet"
-    public_subnet_cidr  = "10.0.1.0/24"
-    public_subnet_name = "public subnet"
-    internet_gateway_name = "internet gateway"
-    elastic_ip_name = "company elastic_ip"
-    nat_gateway_name = "public nat gateway"
-    public_route_table_destination = "0.0.0.0/0"
-    public_route_table_name = "public route table"
-    private_route_table_destination = "0.0.0.0/0"
-    private_route_table_name = "private route table"
+#import vpc module
+module "vpc_module" {
+  source = "../../modules/vpc"
+  vpc_cidr = "10.0.0.0/16"
+  vpc_name = "custom vpc"
+  vpc_stack_owner = "data platform team"
+  vpc_stack_environment = "dev" 
+  subnet_cidr = "10.0.0.0/24"
+  subnet_name = "public subnet"
 }
 
+
+
+module "vpc_module_priv" {
+  source = "../../modules/vpc"
+  vpc_cidr = "10.0.0.0/16"
+  vpc_name = "custom vpc"
+  vpc_stack_owner = "data platform team"
+  vpc_stack_environment =  "dev"
+  subnet_cidr = "10.0.1.0/24"
+  subnet_name = "private subnet"
+}
+
+#Create internet gateway
+resource "aws_internet_gateway" "internet_gateway" {
+  vpc_id = module.vpc_module.practice_vpc
+
+  tags = {
+    Name = "internet gateway"
+    Owner = "data platform team"
+    Environment = "dev"
+  }
+}
+
+# Create Elastic IP for NAT Gateway
+resource "aws_eip" "eip_nat_gateway" {
+  tags = {
+    Name        = "public NAT elastic ip"
+    Owner       = "data platform team"
+    Environment = "dev"
+  }
+}
+
+#Create public NAT gateway
+resource "aws_nat_gateway" "nat_gateway" {
+  subnet_id     =  module.vpc_module.practice_subnet
+  allocation_id = aws_eip.eip_nat_gateway.id
+
+  # To ensure proper ordering, it is recommended to add an explicit dependency
+  # on the Internet Gateway for the VPC.
+  depends_on = [aws_internet_gateway.internet_gateway]
+
+  tags = {
+    Name = "public NAT"
+    Owner= "data platform team"
+    Environment = "dev"
+  }
+}
+
+#Create route tables
+resource "aws_route_table" "public_route_table" {
+  vpc_id = module.vpc_module.practice_vpc
+
+  route {
+    cidr_block = "0.0.0.0/0" 
+    gateway_id = aws_internet_gateway.internet_gateway.id
+  }
+
+  tags = {
+    Name = "public route table"
+    Owner= "data platform team"
+    Environment = "dev"
+  }
+}
+
+
+resource "aws_route_table" "private_route_table" {
+  vpc_id = module.vpc_module_priv.practice_vpc
+
+  route {
+    cidr_block =  "0.0.0.0/0" 
+    gateway_id = aws_nat_gateway.nat_gateway.id 
+  }
+
+  tags = {
+    Name = "private route table"
+    Owner= "data platform team"
+    Environment = "dev"
+  }
+}
+
+
+#Create route table associations between subnets and route tables
+resource "aws_route_table_association" "public_rt_association" {
+  subnet_id = module.vpc_module.practice_subnet
+  route_table_id = aws_route_table.public_route_table.id
+}
+
+
+resource "aws_route_table_association" "private_rt_association" {
+  subnet_id = module.vpc_module_priv.practice_subnet
+  route_table_id = aws_route_table.private_route_table.id
+}
 
