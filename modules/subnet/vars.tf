@@ -1,6 +1,5 @@
 variable "vpc_id"{
-    description = "vpc to deploy the subnet in"
-    default = "10.0.0.0/16"
+    description = "id of the vpc to deploy the subnet in"
 }
 
 

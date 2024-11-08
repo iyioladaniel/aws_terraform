@@ -8,4 +8,3 @@ resource "aws_vpc" "custom_vpc" {
         Environment = var.vpc_stack_environment
     }
 }
-

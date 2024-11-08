@@ -83,7 +83,7 @@ resource "aws_route_table" "public_route_table" {
 
 
 resource "aws_route_table" "private_route_table" {
-  vpc_id = module.vpc_module_priv.practice_vpc
+  vpc_id = module.vpc_module.practice_vpc
 
   route {
     cidr_block =  "0.0.0.0/0" 
