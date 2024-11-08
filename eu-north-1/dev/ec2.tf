@@ -2,23 +2,10 @@
 #import vpc module
 module "vpc_module" {
   source = "../../modules/vpc"
-  vpc_cidr = "10.0.0.0/16"
+  vpc_cidr = module.vpc_module.practice_vpc
   vpc_name = "custom vpc"
   vpc_stack_owner = "data platform team"
   vpc_stack_environment = "dev" 
-  subnet_cidr = "10.0.0.0/24"
-  subnet_name = "public subnet"
-}
-
-
-module "vpc_module_priv" {
-  source = "../../modules/vpc"
-  vpc_cidr = "10.0.0.0/16"
-  vpc_name = "custom vpc"
-  vpc_stack_owner = "data platform team"
-  vpc_stack_environment =  "dev"
-  subnet_cidr = "10.0.1.0/24"
-  subnet_name = "private subnet"
 }
 
 
@@ -102,7 +89,7 @@ module "public_ec2"{
     security_group_name = [aws_security_group.public_ec2_sg.id]
     attach_public_ip = true
     ec2_instance_name = "public ec2"
-    ec2_instance_owner = "darapltform team"
+    ec2_instance_owner = "data platform team"
 
 }
 

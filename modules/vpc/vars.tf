@@ -15,11 +15,3 @@ variable "vpc_stack_environment" {
   description = "environment the vpc stack resource is deployed"
 }
 
-variable "subnet_cidr"{
-    description = "cidr block range for the private subnet"
-    default = "10.0.0.0/24"
-}
-
-variable "subnet_name" {
-  description = "name of created private subnet"
-}
