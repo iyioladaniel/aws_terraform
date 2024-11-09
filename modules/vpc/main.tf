@@ -4,7 +4,7 @@ resource "aws_vpc" "custom_vpc" {
     enable_dns_hostnames = true
     tags = {
         Name = var.vpc_name
-        Owner= var.vpc_stack_owner
-        Environment = var.vpc_stack_environment
+        Owner= var.vpc_owner
+        Environment = var.environment
     }
 }

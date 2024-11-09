@@ -17,6 +17,7 @@ variable "security_group_name"{
 
 variable "attach_public_ip"{
     description = "specify 'true' if ec2 instance will be in a public subnet, 'false' otherwise"
+    default = false
 }
 
 
@@ -33,7 +34,6 @@ variable "ec2_instance_owner"{
     default = "data platform team"
 }
 
-variable "ec2_instance_environment"{
+variable "environment"{
     description = "environment of the created ec2"
-    default = "dev"
 }

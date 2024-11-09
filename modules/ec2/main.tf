@@ -9,7 +9,7 @@ resource "aws_instance" "custom_instance" {
   tags = {
     Name = var.ec2_instance_name
     Owner = var.ec2_instance_owner
-    Environment = var.ec2_instance_environment
+    Environment = var.environment
   }
 }
 

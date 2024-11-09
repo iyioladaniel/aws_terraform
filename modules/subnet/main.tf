@@ -6,7 +6,7 @@ resource "aws_subnet" "custom_subnet" {
     tags = {
         Name = var.subnet_name
         Owner= var.subnet_owner
-        Environment = var.subnet_environment
+        Environment = var.environment
     }
 }
 

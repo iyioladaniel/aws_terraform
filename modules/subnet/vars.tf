@@ -4,13 +4,12 @@ variable "vpc_id"{
 
 
 variable "subnet_cidr"{
-    description = "cidr block range for the private subnet"
-    default = "10.0.0.0/24"
+    description = "cidr block range for the subnet"
 }
 
 
 variable "subnet_name" {
-  description = "name of created private subnet"
+  description = "name of created subnet"
 }
 
 
@@ -19,6 +18,6 @@ variable "subnet_owner" {
 }
 
 
-variable "subnet_environment" {
+variable "environment" {
   description = "environment where the subnet will be deployed"
 }

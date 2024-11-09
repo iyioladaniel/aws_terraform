@@ -7,11 +7,11 @@ variable "vpc_name" {
   description = "name of created vpc"
 }
 
-variable "vpc_stack_owner" {
+variable "vpc_owner" {
   description = "owner of created vpc stack resource"
 }
 
-variable "vpc_stack_environment" {
+variable "environment" {
   description = "environment the vpc stack resource is deployed"
 }
 
