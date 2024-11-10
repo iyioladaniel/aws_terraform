@@ -30,11 +30,11 @@ resource "aws_vpc_security_group_ingress_rule" "public_allow_all_ipv4_inbound_tr
    
  }
 
-# #Create key pair for SSH access
-# resource "aws_key_pair" "public_ec2_key_pair" {
-#   key_name = "...."
-#   public_key = "...."
-# }
+ #Create key pair for SSH access
+ resource "aws_key_pair" "public_ec2_key_pair" {
+   key_name = "key_pair"
+   public_key = file("~/.ssh/my-key.pub")
+ }
 
 
  #Create Security Groups for private instance
@@ -51,24 +51,24 @@ resource "aws_vpc_security_group_ingress_rule" "public_allow_all_ipv4_inbound_tr
  }
 
  #rule to allow inbound ssh from public subnet only
- #resource "aws_vpc_security_group_ingress_rule" "private_allow_inbound_ipv4_ssh_traffic" {
-  # security_group_id = aws_security_group.private_ec2_sg.id
-  # description = "allow ssh from ips within the CIDR of the public subnet"
-   #ip_protocol = "tcp" 
-   #from_port = "22"
-   #to_port = "22"
+ resource "aws_vpc_security_group_ingress_rule" "private_allow_inbound_ipv4_ssh_traffic" {
+   security_group_id = aws_security_group.private_ec2_sg.id
+   description = "allow ssh from ips within the CIDR of the public subnet"
+   ip_protocol = "tcp" 
+   from_port = "22"
+   to_port = "22"
 
-#   #reference the public security group
-  # referenced_security_group_id = aws_security_group.public_ec2_sg.id 
- #}
+   #reference the public security group
+   referenced_security_group_id = aws_security_group.public_ec2_sg.id 
+ }
 
 
 # #rule to allow all outbound traffic
- #resource "aws_vpc_security_group_egress_rule" "private_allow_all_outbound_ipv4_ssh_traffic" {
-  # security_group_id = aws_security_group.private_ec2_sg.id
-  # cidr_ipv4 = "0.0.0.0/0"
-   #ip_protocol = "-1"
- #}
+ resource "aws_vpc_security_group_egress_rule" "private_allow_all_outbound_ipv4_ssh_traffic" {
+   security_group_id = aws_security_group.private_ec2_sg.id
+   cidr_ipv4 = "0.0.0.0/0"
+   ip_protocol = "-1"
+ }
 
 
  #create public ec2 

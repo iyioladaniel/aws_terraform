@@ -9,4 +9,3 @@ resource "aws_subnet" "custom_subnet" {
         Environment = var.environment
     }
 }
-

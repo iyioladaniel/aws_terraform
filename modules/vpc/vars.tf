@@ -14,4 +14,3 @@ variable "vpc_owner" {
 variable "environment" {
   description = "environment the vpc stack resource is deployed"
 }
-

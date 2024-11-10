@@ -1,7 +1,5 @@
 .env
 .terraform
 # SSH Keys
-*.pub
-*_key
 
 

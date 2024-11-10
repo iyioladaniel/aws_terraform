@@ -12,4 +12,3 @@ resource "aws_instance" "custom_instance" {
     Environment = var.environment
   }
 }
-
