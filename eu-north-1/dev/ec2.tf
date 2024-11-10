@@ -17,7 +17,6 @@ resource "aws_vpc_security_group_ingress_rule" "public_allow_all_ipv4_inbound_tr
    description = "allow all inbound ssh traffic from anywhere on the internet"
    cidr_ipv4         = "0.0.0.0/0"
    ip_protocol       = "tcp"
-   #Port 22 is used to establish an SSH connection to an EC2 instance and access a shell
    from_port         = "22"
    to_port           = "22"
  }
@@ -29,6 +28,7 @@ resource "aws_vpc_security_group_ingress_rule" "public_allow_all_ipv4_inbound_tr
    ip_protocol = "-1"
    
  }
+
 
  #Create key pair for SSH access
  resource "aws_key_pair" "public_ec2_key_pair" {
@@ -49,6 +49,7 @@ resource "aws_vpc_security_group_ingress_rule" "public_allow_all_ipv4_inbound_tr
      Environment = var.environment
    }
  }
+
 
  #rule to allow inbound ssh from public subnet only
  resource "aws_vpc_security_group_ingress_rule" "private_allow_inbound_ipv4_ssh_traffic" {
